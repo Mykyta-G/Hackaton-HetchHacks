@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h1>Hello Electron + Vue</h1>
+    <router-view />
     <Nav />
   </div>
 </template>
