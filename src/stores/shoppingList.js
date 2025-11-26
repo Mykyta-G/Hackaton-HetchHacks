@@ -29,6 +29,13 @@ const deleteItem = (id) => {
     state.items = state.items.filter((i) => i.id !== id);
 };
 
+const addCategory = (categoryName) => {
+    const trimmed = categoryName.trim();
+    if (trimmed && !state.categories.includes(trimmed)) {
+        state.categories.push(trimmed);
+    }
+};
+
 const itemsByCategory = computed(() => {
     const grouped = {};
     state.categories.forEach(cat => {
@@ -42,5 +49,6 @@ export const shoppingListStore = {
     addItem,
     toggleItem,
     deleteItem,
+    addCategory,
     itemsByCategory,
 };
