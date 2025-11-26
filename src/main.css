@@ -1,2 +1,23 @@
 /* Add your global styles here */
+:root {
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --tertiary-color: #515ada;
+  --quaternary-color: #424890;
+  --quinary-color: #33387a;
+  --senary-color: #24285a;
+  --septenary-color: #15183a;
+}
 
+/* Hide scrollbar while maintaining scroll functionality */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+html, body {
+  -ms-overflow-style: none;
+}

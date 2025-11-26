@@ -1,14 +1,18 @@
 <template>
   <div id="app">
     <h1>Hello Electron + Vue</h1>
+    <Nav />
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-
+import Nav from './components/nav.vue';
 export default defineComponent({
   name: 'App',
+  components: {
+    Nav,
+  },
 });
 </script>
 
@@ -22,8 +26,10 @@ body {
 }
 
 #app {
+  padding: 10px;
   width: 100%;
   height: 100vh;
+  background: var(--primary-color);
 }
 </style>
 
