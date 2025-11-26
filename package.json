@@ -1,7 +1,7 @@
 {
-  "name": "electron-vue-app",
-  "version": "0.0.0",
-  "description": "Electron app with Vue 3",
+  "name": "home-e",
+  "version": "0.1.0",
+  "description": "A beautiful, customizable family management application built with Vue 3 and Electron. From hackathon prototype to production app.",
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
@@ -9,8 +9,20 @@
     "dev": "concurrently --kill-others-on-fail --kill-others \"vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
     "build": "vite build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "family",
+    "hub",
+    "vue",
+    "electron",
+    "desktop",
+    "hackathon",
+    "productivity",
+    "shopping-list",
+    "todo",
+    "meal-planning",
+    "activity-tracker"
+  ],
+  "author": "Mykyta-G, Carl Axelson, Eliah Dimmed",
   "license": "MIT",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
