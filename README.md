@@ -1,6 +1,6 @@
 # Home-E - A Hackathon Story
 
-> **Built with sweat, tears, and pure determination during HetchHacks 2024**
+> **Built with sweat, tears, and pure determination during HetchHacks 2025**
 
 A beautiful, customizable family management application built with Vue 3 and Electron. What started as a hackathon project is now on a journey to become a full-fledged mobile and desktop application.
 
