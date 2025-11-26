@@ -66,7 +66,9 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--secondary-color);
+  background: rgba(0, 126, 167, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   margin: 10px;
   padding: 10px;
   z-index: 1000;
