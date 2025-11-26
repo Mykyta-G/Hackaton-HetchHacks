@@ -3,7 +3,7 @@
     <!-- iOS-style header -->
     <header class="header">
       <h1 class="header-title">
-        <span class="header-icon">🛒</span>
+        <Icon name="shopping-cart" size="xl" class="header-icon" />
         Shopping List
       </h1>
     </header>
@@ -26,7 +26,7 @@
       </template>
       
       <div v-if="totalItems === 0" class="empty-state">
-        <div class="empty-icon">📝</div>
+        <Icon name="file-text" size="xl" class="empty-icon" />
         <p class="empty-text">No items yet</p>
         <p class="empty-subtext">Tap the + button to add your first item</p>
       </div>
@@ -38,6 +38,7 @@
 <script setup>
 import { computed } from 'vue';
 import Nav from '../components/nav.vue';
+import Icon from '../components/Icon.vue';
 import { shoppingListStore as store } from '../stores/shoppingList';
 import ShoppingListInput from '../components/ShoppingList/ShoppingListInput.vue';
 import ShoppingListGroup from '../components/ShoppingList/ShoppingListGroup.vue';
@@ -107,9 +108,11 @@ const totalItems = computed(() => store.state.items.length);
 }
 
 .empty-icon {
-  font-size: 64px;
+  width: 64px;
+  height: 64px;
   margin-bottom: var(--spacing-lg);
   opacity: 0.5;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .empty-text {

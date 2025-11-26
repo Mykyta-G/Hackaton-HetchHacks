@@ -1,7 +1,7 @@
 <template>
   <div class="category-group">
     <h3 class="category-title">
-      <span class="category-emoji">📦</span>
+      <Icon name="box" size="sm" class="category-icon" />
       {{ title }}
       <span class="item-count">{{ items.length }}</span>
     </h3>
@@ -18,6 +18,7 @@
 </template>
 
 <script setup>
+import Icon from '../Icon.vue';
 import ShoppingListItem from './ShoppingListItem.vue';
 
 defineProps({
@@ -65,8 +66,8 @@ defineEmits(['toggle', 'delete']);
   border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
 
-.category-emoji {
-  font-size: 1.2em;
+.category-icon {
+  flex-shrink: 0;
 }
 
 .item-count {

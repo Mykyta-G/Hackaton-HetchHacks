@@ -3,7 +3,7 @@
     <!-- iOS-style header -->
     <header class="header">
       <h1 class="header-title">
-        <span class="header-icon">🍽️</span>
+        <Icon name="utensils" size="xl" class="header-icon" />
         Meal Countdown
       </h1>
     </header>
@@ -18,7 +18,7 @@
             :class="{ active: store.state.mealType === 'lunch' }"
             @click="store.setMealType('lunch')"
           >
-            <span class="meal-icon">🍱</span>
+            <Icon name="coffee" size="xl" class="meal-icon" />
             <span class="meal-label">Lunch</span>
           </button>
           <button
@@ -26,7 +26,7 @@
             :class="{ active: store.state.mealType === 'dinner' }"
             @click="store.setMealType('dinner')"
           >
-            <span class="meal-icon">🍽️</span>
+            <Icon name="utensils" size="xl" class="meal-icon" />
             <span class="meal-label">Dinner</span>
           </button>
         </div>
@@ -87,8 +87,10 @@
           :class="{ active: store.state.isActive }"
           @click="store.toggleCountdown"
         >
-          <span v-if="store.state.isActive">⏸️ Stop Countdown</span>
-          <span v-else>▶️ Start Countdown</span>
+          <Icon v-if="store.state.isActive" name="pause" size="sm" class="btn-icon" />
+          <Icon v-else name="play" size="sm" class="btn-icon" />
+          <span v-if="store.state.isActive">Stop Countdown</span>
+          <span v-else>Start Countdown</span>
         </button>
       </div>
 
@@ -100,7 +102,8 @@
           @click="handleSendMessage"
           :disabled="!store.state.isActive"
         >
-          📢 Send Message to All
+          <Icon name="send" size="sm" class="btn-icon" />
+          Send Message to All
         </button>
         <p class="send-hint" v-if="!store.state.isActive">
           Start the countdown to enable sending messages
@@ -114,6 +117,7 @@
 
 <script setup>
 import Nav from '../components/nav.vue';
+import Icon from '../components/Icon.vue';
 import { mealCountdownStore as store } from '../stores/mealCountdown';
 
 defineEmits(['navigate']);
@@ -236,7 +240,7 @@ const handleSendMessage = () => {
 }
 
 .meal-icon {
-  font-size: 32px;
+  flex-shrink: 0;
 }
 
 .meal-label {
@@ -381,6 +385,10 @@ const handleSendMessage = () => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
 }
 
 .send-btn:hover:not(:disabled) {

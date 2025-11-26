@@ -8,7 +8,7 @@
     <div class="meal-countdown-widget" :class="{ 'half-size': size === 'half' }" @click.stop="handleWidgetClick">
       <div class="widget-header">
         <h3 class="widget-title">
-          <span class="widget-icon">{{ mealIcon }}</span>
+          <Icon :name="mealIconName" size="md" class="widget-icon" />
           <span class="widget-title-text">{{ mealTypeLabel }}</span>
         </h3>
         <div class="widget-status" :class="{ active: store.state.isActive }">
@@ -34,13 +34,15 @@
 
 <script>
 import BaseWidget from './BaseWidget.vue';
+import Icon from '../Icon.vue';
 import { mealCountdownStore } from '../../stores/mealCountdown';
 import { computed } from 'vue';
 
 export default {
   name: 'MealCountdownWidget',
   components: {
-    BaseWidget
+    BaseWidget,
+    Icon
   },
   props: {
     widgetId: {
@@ -57,8 +59,8 @@ export default {
   setup(props, { emit }) {
     const store = mealCountdownStore;
     
-    const mealIcon = computed(() => {
-      return store.state.mealType === 'lunch' ? '🍱' : '🍽️';
+    const mealIconName = computed(() => {
+      return store.state.mealType === 'lunch' ? 'coffee' : 'utensils';
     });
     
     const mealTypeLabel = computed(() => {
@@ -71,7 +73,7 @@ export default {
     
     return {
       store,
-      mealIcon,
+      mealIconName,
       mealTypeLabel,
       handleWidgetClick
     };

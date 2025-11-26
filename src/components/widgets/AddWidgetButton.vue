@@ -21,7 +21,7 @@
         class="dropdown-item"
         @click="handleAddWidget(widgetType.type)"
       >
-        <span class="item-icon">{{ widgetType.icon }}</span>
+        <Icon :name="widgetType.icon" size="md" class="item-icon" />
         <span class="item-label">{{ widgetType.label }}</span>
       </button>
     </div>
@@ -35,16 +35,22 @@
 </template>
 
 <script>
+import Icon from '../Icon.vue';
+
 export default {
   name: 'AddWidgetButton',
+  components: {
+    Icon
+  },
   emits: ['add-widget'],
   data() {
     return {
       showDropdown: false,
       availableWidgetTypes: [
-        { type: 'shopping-list', label: 'Shopping List', icon: '🛒' },
-        { type: 'meal-countdown', label: 'Meal Countdown', icon: '🍽️' },
-        { type: 'placeholder', label: 'Placeholder (Testing)', icon: '📦' }
+        { type: 'shopping-list', label: 'Shopping List', icon: 'shopping-cart' },
+        { type: 'meal-countdown', label: 'Meal Countdown', icon: 'utensils' },
+        { type: 'todo-list', label: 'Todo List', icon: 'check-square' },
+        { type: 'placeholder', label: 'Placeholder (Testing)', icon: 'box' }
       ]
     };
   },

@@ -37,13 +37,15 @@ import AddWidgetButton from '../components/widgets/AddWidgetButton.vue';
 import PlaceholderWidget from '../components/widgets/PlaceholderWidget.vue';
 import ShoppingListWidget from '../components/widgets/ShoppingListWidget.vue';
 import MealCountdownWidget from '../components/widgets/MealCountdownWidget.vue';
+import TodoListWidget from '../components/widgets/TodoListWidget.vue';
 import { dashboardStore } from '../stores/dashboard';
 
 // Widget type registry
 const widgetRegistry = {
   'placeholder': PlaceholderWidget,
   'shopping-list': ShoppingListWidget,
-  'meal-countdown': MealCountdownWidget
+  'meal-countdown': MealCountdownWidget,
+  'todo-list': TodoListWidget
 };
 
 export default {
@@ -54,6 +56,7 @@ export default {
     PlaceholderWidget,
     ShoppingListWidget,
     MealCountdownWidget,
+    TodoListWidget,
   },
   props: {
     currentView: {

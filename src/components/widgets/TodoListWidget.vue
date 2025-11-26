@@ -5,35 +5,37 @@
     @resize="handleResize"
     @click="handleWidgetClick"
   >
-    <div class="shopping-list-widget" :class="{ 'half-size': size === 'half' }" @click.stop="handleWidgetClick">
+    <div class="todo-list-widget" :class="{ 'half-size': size === 'half' }" @click.stop="handleWidgetClick">
       <div class="widget-header">
         <h3 class="widget-title">
-          <Icon name="shopping-cart" size="md" class="widget-icon" />
-          Shopping List
+          <Icon name="check-square" size="md" class="widget-icon" />
+          Todo List
         </h3>
         <div class="widget-stats">
-          <span class="stat-item">{{ totalItems }} items</span>
+          <span class="stat-item">{{ totalTasks }} tasks</span>
           <span class="stat-item">{{ completedCount }} done</span>
         </div>
       </div>
       
-      <div class="recent-items">
+      <div class="recent-tasks">
         <div 
-          v-if="recentItems.length === 0" 
+          v-if="recentTasks.length === 0" 
           class="empty-state"
         >
-          <p class="empty-text">No items yet</p>
-          <p class="empty-hint">Tap to add items</p>
+          <p class="empty-text">No tasks yet</p>
+          <p class="empty-hint">Tap to add tasks</p>
         </div>
         <div 
-          v-for="item in recentItems" 
-          :key="item.id"
-          class="recent-item"
-          :class="{ 'completed': item.completed }"
+          v-for="task in recentTasks" 
+          :key="task.id"
+          class="recent-task"
+          :class="{ 'completed': task.completed, [`priority-${task.priority}`]: !task.completed }"
         >
-          <span class="item-check">{{ item.completed ? '✓' : '○' }}</span>
-          <span class="item-name">{{ item.name }}</span>
-          <span class="item-category">{{ item.category }}</span>
+          <span class="task-check">{{ task.completed ? '✓' : '○' }}</span>
+          <span class="task-name">{{ task.title }}</span>
+          <span v-if="!task.completed" class="task-priority" :class="`priority-${task.priority}`">
+            {{ task.priority === 'high' ? '!' : task.priority === 'medium' ? '•' : '' }}
+          </span>
         </div>
       </div>
     </div>
@@ -43,11 +45,11 @@
 <script>
 import BaseWidget from './BaseWidget.vue';
 import Icon from '../Icon.vue';
-import { shoppingListStore } from '../../stores/shoppingList';
+import { todoListStore } from '../../stores/todoList';
 import { computed } from 'vue';
 
 export default {
-  name: 'ShoppingListWidget',
+  name: 'TodoListWidget',
   components: {
     BaseWidget,
     Icon
@@ -65,26 +67,35 @@ export default {
   },
   emits: ['resize', 'navigate'],
   setup(props, { emit }) {
-    const store = shoppingListStore;
+    const store = todoListStore;
     
-    const totalItems = computed(() => store.state.items.length);
-    const completedCount = computed(() => 
-      store.state.items.filter(item => item.completed).length
-    );
-    const recentItems = computed(() => {
-      // Get last 5 items, most recent first
-      return [...store.state.items].reverse().slice(0, 5);
+    const totalTasks = computed(() => store.totalCount.value);
+    const completedCount = computed(() => store.completedCount.value);
+    
+    const recentTasks = computed(() => {
+      // Get pending tasks first (sorted by priority), then completed tasks
+      const pending = [...store.pendingTasks.value];
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      pending.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      
+      const completed = [...store.completedTasks.value].slice(0, 2);
+      
+      // Show up to 5 tasks total, prioritizing pending
+      const maxPending = Math.min(pending.length, 5);
+      const maxCompleted = Math.max(0, 5 - maxPending);
+      
+      return [...pending.slice(0, maxPending), ...completed.slice(0, maxCompleted)];
     });
     
     const handleWidgetClick = () => {
-      emit('navigate', 'ShoppingListView');
+      emit('navigate', 'TodoListView');
     };
     
     return {
       store,
-      totalItems,
+      totalTasks,
       completedCount,
-      recentItems,
+      recentTasks,
       handleWidgetClick
     };
   },
@@ -97,7 +108,7 @@ export default {
 </script>
 
 <style scoped>
-.shopping-list-widget {
+.todo-list-widget {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -159,7 +170,7 @@ export default {
   font-weight: 500;
 }
 
-.recent-items {
+.recent-tasks {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -167,30 +178,44 @@ export default {
   overflow-y: auto;
 }
 
-.half-size .recent-items {
+.half-size .recent-tasks {
   gap: var(--spacing-xs);
 }
 
-.recent-item {
+.recent-task {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) 0;
   font-size: 0.9em;
   transition: opacity 0.2s ease;
+  border-left: 2px solid transparent;
+  padding-left: var(--spacing-xs);
 }
 
-.half-size .recent-item {
+.recent-task.priority-high {
+  border-left-color: #FF3B30;
+}
+
+.recent-task.priority-medium {
+  border-left-color: #FF9500;
+}
+
+.recent-task.priority-low {
+  border-left-color: #34C759;
+}
+
+.half-size .recent-task {
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) 0;
   font-size: 0.8em;
 }
 
-.recent-item.completed {
+.recent-task.completed {
   opacity: 0.6;
 }
 
-.item-check {
+.task-check {
   width: 20px;
   text-align: center;
   font-size: 1.1em;
@@ -198,12 +223,12 @@ export default {
   flex-shrink: 0;
 }
 
-.half-size .item-check {
+.half-size .task-check {
   width: 16px;
   font-size: 0.95em;
 }
 
-.item-name {
+.task-name {
   flex: 1;
   color: rgba(255, 255, 255, 0.9);
   min-width: 0;
@@ -212,23 +237,33 @@ export default {
   white-space: nowrap;
 }
 
-.recent-item.completed .item-name {
+.recent-task.completed .task-name {
   text-decoration: line-through;
 }
 
-.item-category {
+.task-priority {
   font-size: 0.85em;
-  color: rgba(255, 255, 255, 0.5);
-  padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  font-weight: 600;
   flex-shrink: 0;
+  width: 16px;
+  text-align: center;
 }
 
-.half-size .item-category {
-  font-size: 0.7em;
-  padding: 1px 6px;
-  border-radius: 6px;
+.task-priority.priority-high {
+  color: #FF3B30;
+}
+
+.task-priority.priority-medium {
+  color: #FF9500;
+}
+
+.task-priority.priority-low {
+  color: #34C759;
+}
+
+.half-size .task-priority {
+  font-size: 0.75em;
+  width: 12px;
 }
 
 .empty-state {
