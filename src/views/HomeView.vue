@@ -4,12 +4,18 @@
     <button @click="$router.push('/shopping-list')" class="nav-btn">
       Go to Shopping List
     </button>
+    <Nav />
   </div>
 </template>
 
 <script>
+import Nav from '../components/nav.vue';
+
 export default {
   name: 'HomeView',
+  components: {
+    Nav,
+  },
 };
 </script>
 

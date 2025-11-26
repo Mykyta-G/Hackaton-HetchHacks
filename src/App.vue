@@ -1,18 +1,14 @@
 <template>
   <div id="app">
     <router-view />
-    <Nav />
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-import Nav from './components/nav.vue';
+
 export default defineComponent({
   name: 'App',
-  components: {
-    Nav,
-  },
 });
 </script>
 
@@ -32,4 +28,3 @@ body {
   background: var(--primary-color);
 }
 </style>
-
