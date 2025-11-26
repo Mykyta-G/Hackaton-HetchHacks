@@ -47,10 +47,12 @@ html {
 }
 
 #app {
+  padding: 0;
   width: 100%;
   max-width: 100vw;
   box-sizing: border-box;
   min-height: 100vh;
   background: var(--primary-color);
+  overflow-x: hidden;
 }
 </style>
