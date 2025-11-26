@@ -10,33 +10,50 @@
         @dragover.prevent="handleGridDragOver"
         @drop.prevent="handleGridDrop"
       >
-        <PlaceholderWidget
+        <component
           v-for="widget in widgets"
           :key="widget.id"
+          :is="getWidgetComponent(widget.type)"
           :widget-id="widget.id"
-          :title="widget.title"
-          :content="widget.content"
           :size="widget.size"
+          v-bind="getWidgetProps(widget)"
           @drag-start="handleWidgetDragStart"
           @drop="handleWidgetDrop"
           @resize="handleWidgetResize"
+          @navigate="handleWidgetNavigate"
+          @delete="handleWidgetDelete"
         />
       </div>
     </div>
     
+    <AddWidgetButton @add-widget="handleAddWidget" />
     <Nav :currentView="currentView" @navigate="$emit('navigate', $event)" />
   </div>
 </template>
 
 <script>
 import Nav from '../components/nav.vue';
+import AddWidgetButton from '../components/widgets/AddWidgetButton.vue';
 import PlaceholderWidget from '../components/widgets/PlaceholderWidget.vue';
+import ShoppingListWidget from '../components/widgets/ShoppingListWidget.vue';
+import MealCountdownWidget from '../components/widgets/MealCountdownWidget.vue';
+import { dashboardStore } from '../stores/dashboard';
+
+// Widget type registry
+const widgetRegistry = {
+  'placeholder': PlaceholderWidget,
+  'shopping-list': ShoppingListWidget,
+  'meal-countdown': MealCountdownWidget
+};
 
 export default {
   name: 'HomeView',
   components: {
     Nav,
+    AddWidgetButton,
     PlaceholderWidget,
+    ShoppingListWidget,
+    MealCountdownWidget,
   },
   props: {
     currentView: {
@@ -45,79 +62,108 @@ export default {
     }
   },
   emits: ['navigate'],
+  computed: {
+    widgets() {
+      return dashboardStore.state.widgets;
+    }
+  },
   data() {
     return {
-      widgets: [
-        { id: 1, title: 'Widget 1', content: 'Drag me to rearrange!', size: 'full' },
-        { id: 2, title: 'Widget 2', content: 'Try dragging widgets around.', size: 'full' },
-        { id: 3, title: 'Widget 3', content: 'Max 2 widgets per row.', size: 'full' },
-        { id: 4, title: 'Widget 4', content: 'Drop widgets to swap positions.', size: 'full' },
-      ],
       draggedWidgetId: null,
     };
   },
   methods: {
+    getWidgetComponent(type) {
+      return widgetRegistry[type] || PlaceholderWidget;
+    },
+    getWidgetProps(widget) {
+      // Return props specific to widget type
+      if (widget.type === 'placeholder') {
+        return {
+          title: widget.title || 'Widget',
+          content: widget.content || 'This is a placeholder widget.'
+        };
+      }
+      return {};
+    },
+    handleAddWidget(type) {
+      const config = {};
+      if (type === 'placeholder') {
+        config.title = `Widget ${dashboardStore.state.widgets.length + 1}`;
+        config.content = 'Drag me to rearrange!';
+      }
+      dashboardStore.addWidget(type, config);
+      this.$nextTick(() => {
+        this.optimizeLayout();
+      });
+    },
+    handleWidgetNavigate(view) {
+      this.$emit('navigate', view);
+    },
     handleWidgetDragStart({ widgetId }) {
       this.draggedWidgetId = widgetId;
     },
     handleWidgetDrop({ draggedWidgetId, targetWidgetId, isCenter, isLeft, isRight, isTop, isBottom }) {
       if (!draggedWidgetId || !targetWidgetId) return;
       
-      const draggedIndex = this.widgets.findIndex(w => w.id.toString() === draggedWidgetId.toString());
-      const targetIndex = this.widgets.findIndex(w => w.id.toString() === targetWidgetId.toString());
+      const widgets = [...this.widgets]; // Create a copy to work with
+      const draggedIndex = widgets.findIndex(w => w.id.toString() === draggedWidgetId.toString());
+      const targetIndex = widgets.findIndex(w => w.id.toString() === targetWidgetId.toString());
       
       if (draggedIndex === -1 || targetIndex === -1 || draggedIndex === targetIndex) {
         this.draggedWidgetId = null;
         return;
       }
       
-      const draggedWidget = this.widgets[draggedIndex];
-      const targetWidget = this.widgets[targetIndex];
+      const draggedWidget = widgets[draggedIndex];
+      const targetWidget = widgets[targetIndex];
       
       // Remove dragged widget first to avoid index issues
-      const [draggedWidgetData] = this.widgets.splice(draggedIndex, 1);
+      const [draggedWidgetData] = widgets.splice(draggedIndex, 1);
       
       // Recalculate target index after removal
-      let newTargetIndex = this.widgets.findIndex(w => w.id.toString() === targetWidgetId.toString());
+      let newTargetIndex = widgets.findIndex(w => w.id.toString() === targetWidgetId.toString());
       
       // Handle different drop positions
       if (isCenter) {
         // Center drop: swap positions preserving sizes
-        this.widgets.splice(newTargetIndex, 0, draggedWidgetData);
+        widgets.splice(newTargetIndex, 0, draggedWidgetData);
       } else if (isTop) {
         // Drop above: place widget before target
-        this.widgets.splice(newTargetIndex, 0, draggedWidgetData);
+        widgets.splice(newTargetIndex, 0, draggedWidgetData);
       } else if (isBottom) {
         // Drop below: place widget after target
-        this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+        widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
       } else if (isLeft || isRight) {
         // Side drop: use smart resizing logic
         // Case 1: Dragging half widget beside full widget -> shrink full widget to half
         if (draggedWidgetData.size === 'half' && targetWidget.size === 'full') {
-          targetWidget.size = 'half';
-          this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+          dashboardStore.updateWidget(targetWidget.id, { size: 'half' });
+          widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
         }
         // Case 2: Dragging full widget beside full widget -> shrink both to half
         else if (draggedWidgetData.size === 'full' && targetWidget.size === 'full') {
-          draggedWidgetData.size = 'half';
-          targetWidget.size = 'half';
-          this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+          dashboardStore.updateWidget(draggedWidgetData.id, { size: 'half' });
+          dashboardStore.updateWidget(targetWidget.id, { size: 'half' });
+          widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
         }
         // Case 3: Dragging full widget beside half widget -> shrink dragged widget to half
         else if (draggedWidgetData.size === 'full' && targetWidget.size === 'half') {
-          draggedWidgetData.size = 'half';
-          this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+          dashboardStore.updateWidget(draggedWidgetData.id, { size: 'half' });
+          widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
         }
         // Case 4: Both half widgets - place beside
         else {
-          this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+          widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
         }
       } else {
         // Default: place after target
-        this.widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
+        widgets.splice(newTargetIndex + 1, 0, draggedWidgetData);
       }
       
       this.draggedWidgetId = null;
+      // Update store with new order
+      dashboardStore.reorderWidgets(widgets);
       this.$nextTick(() => {
         this.optimizeLayout();
       });
@@ -131,10 +177,10 @@ export default {
       this.draggedWidgetId = null;
     },
     handleWidgetResize({ widgetId, newSize }) {
+      dashboardStore.updateWidget(widgetId, { size: newSize });
       const widget = this.widgets.find(w => w.id.toString() === widgetId.toString());
       if (widget) {
         const oldSize = widget.size;
-        widget.size = newSize;
         
         // If widget was shrunk from full to half, try to optimize layout
         if (oldSize === 'full' && newSize === 'half') {
@@ -148,18 +194,25 @@ export default {
         }
       }
     },
+    handleWidgetDelete({ widgetId }) {
+      dashboardStore.removeWidget(widgetId);
+      this.$nextTick(() => {
+        this.optimizeLayout();
+      });
+    },
     optimizeLayoutAfterShrink(shrunkenWidgetId) {
       // When a widget shrinks from full to half, try to find a half widget below
       // that's alone and can move up to pair with it
-      const shrunkenIndex = this.widgets.findIndex(w => w.id.toString() === shrunkenWidgetId.toString());
+      const widgets = [...this.widgets]; // Create a copy to work with
+      const shrunkenIndex = widgets.findIndex(w => w.id.toString() === shrunkenWidgetId.toString());
       if (shrunkenIndex === -1) return;
       
       // Simulate layout to find widgets that could move up
       let currentRowColumns = 0;
       let foundShrunken = false;
       
-      for (let i = 0; i < this.widgets.length; i++) {
-        const widget = this.widgets[i];
+      for (let i = 0; i < widgets.length; i++) {
+        const widget = widgets[i];
         
         if (widget.id.toString() === shrunkenWidgetId.toString()) {
           foundShrunken = true;
@@ -175,11 +228,13 @@ export default {
           // If we found the shrunken widget and now see a half widget alone
           if (foundShrunken && currentRowColumns === 1) {
             // Check if this widget is alone (next widget is full or doesn't exist)
-            const nextWidget = i < this.widgets.length - 1 ? this.widgets[i + 1] : null;
+            const nextWidget = i < widgets.length - 1 ? widgets[i + 1] : null;
             if (!nextWidget || nextWidget.size === 'full') {
               // This widget is alone, move it up to pair with shrunken widget
-              const [widgetToMove] = this.widgets.splice(i, 1);
-              this.widgets.splice(shrunkenIndex + 1, 0, widgetToMove);
+              const [widgetToMove] = widgets.splice(i, 1);
+              widgets.splice(shrunkenIndex + 1, 0, widgetToMove);
+              // Update store with new order
+              dashboardStore.reorderWidgets(widgets);
               break; // Only move one at a time
             }
           }
@@ -244,7 +299,7 @@ export default {
         
         // Only convert to full if truly no way to pair
         if (!canPair) {
-          lastWidget.size = 'full';
+          dashboardStore.updateWidget(lastWidget.id, { size: 'full' });
         }
       }
     },
