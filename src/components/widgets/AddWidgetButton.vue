@@ -50,6 +50,7 @@ export default {
         { type: 'shopping-list', label: 'Shopping List', icon: 'shopping-cart' },
         { type: 'meal-countdown', label: 'Meal Countdown', icon: 'utensils' },
         { type: 'todo-list', label: 'Todo List', icon: 'check-square' },
+        { type: 'activity-tracker', label: 'Activity Tracker', icon: 'list' },
         { type: 'placeholder', label: 'Placeholder (Testing)', icon: 'box' }
       ]
     };

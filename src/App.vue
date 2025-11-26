@@ -10,6 +10,7 @@ import HomeView from './views/HomeView.vue';
 import ShoppingListView from './views/ShoppingListView.vue';
 import MealCountdownView from './views/MealCountdownView.vue';
 import TodoListView from './views/TodoListView.vue';
+import ActivityTrackerView from './views/ActivityTrackerView.vue';
 import ProfileView from './views/ProfileView.vue';
 import SettingsView from './views/SettingsView.vue';
 
@@ -20,6 +21,7 @@ export default {
     ShoppingListView,
     MealCountdownView,
     TodoListView,
+    ActivityTrackerView,
     ProfileView,
     SettingsView,
   },

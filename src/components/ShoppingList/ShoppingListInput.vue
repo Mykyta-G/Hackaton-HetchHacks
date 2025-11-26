@@ -79,12 +79,19 @@ const submitNewCategory = () => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  background: rgba(255, 255, 255, 0.12);
+  margin-bottom: var(--spacing-xl);
+  background: rgba(255, 255, 255, 0.08);
   padding: var(--spacing-lg);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.add-item-form:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
 }
 
 /* Row 1: Input + Green Button */
@@ -104,38 +111,54 @@ const submitNewCategory = () => {
 .input-field {
   flex: 1;
   min-width: 0;
-  padding: 14px 16px;
+  padding: 16px 18px;
   border: none;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 16px;
   font-weight: 500;
   outline: none;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .input-field:focus {
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .input-field::placeholder {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
 }
 
 .category-select {
   flex: 1;
   min-width: 0;
-  padding: 14px 16px;
+  padding: 16px 18px;
   border: none;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
   color: white;
   font-size: 16px;
   font-weight: 500;
   outline: none;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.category-select:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.category-select:focus {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
 }
 
 .category-select option {
@@ -147,23 +170,32 @@ const submitNewCategory = () => {
 /* Green Add Button */
 .add-btn {
   min-width: 56px;
-  height: 44px;
-  padding: 0 20px;
+  height: 56px;
+  padding: 0;
   border: none;
-  border-radius: var(--radius-md);
-  background: #34C759;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #34C759, #30B350);
   color: white;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 300;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.4);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.5);
 }
 
 .add-btn:active {
-  transform: scale(0.95);
-  background: #30B350;
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 12px rgba(52, 199, 89, 0.4);
 }
 
 /* Add Category Toggle Button - Text Style */

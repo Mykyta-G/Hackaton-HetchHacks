@@ -30,18 +30,24 @@ defineEmits(['toggle', 'delete']);
 .item-row {
   display: flex;
   align-items: center;
-  padding: var(--spacing-lg);
-  background: rgba(255, 255, 255, 0.08);
-  margin-bottom: var(--spacing-sm);
-  border-radius: var(--radius-lg);
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  min-height: 56px; /* iOS touch target */
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 64px;
+  backdrop-filter: blur(10px);
+}
+
+.item-row:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
 }
 
 .item-row:active {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(2px) scale(0.99);
 }
 
 .item-row.completed {

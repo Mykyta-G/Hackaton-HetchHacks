@@ -1,11 +1,16 @@
 <template>
   <div class="shopping-list-container">
-    <!-- iOS-style header -->
+    <!-- Modern header -->
     <header class="header">
-      <h1 class="header-title">
-        <Icon name="shopping-cart" size="xl" class="header-icon" />
-        Shopping List
-      </h1>
+      <div class="header-content">
+        <div class="header-icon-wrapper">
+          <Icon name="shopping-cart" size="xl" class="header-icon" />
+        </div>
+        <div class="header-text">
+          <h1 class="header-title">Shopping List</h1>
+          <p class="header-subtitle">{{ totalItems }} {{ totalItems === 1 ? 'item' : 'items' }}</p>
+        </div>
+      </div>
     </header>
 
     <ShoppingListInput 
@@ -26,9 +31,11 @@
       </template>
       
       <div v-if="totalItems === 0" class="empty-state">
-        <Icon name="file-text" size="xl" class="empty-icon" />
-        <p class="empty-text">No items yet</p>
-        <p class="empty-subtext">Tap the + button to add your first item</p>
+        <div class="empty-icon-wrapper">
+          <Icon name="file-text" size="xl" class="empty-icon" />
+        </div>
+        <h3 class="empty-text">Your list is empty</h3>
+        <p class="empty-subtext">Start adding items to your shopping list</p>
       </div>
     </div>
     <Nav @navigate="$emit('navigate', $event)" />
@@ -59,41 +66,74 @@ const totalItems = computed(() => store.state.items.length);
 <style scoped>
 .shopping-list-container {
   padding: var(--spacing-lg);
-  padding-bottom: 100px; /* Space for nav */
-  max-width: 600px;
+  padding-bottom: 120px;
+  max-width: 640px;
   margin: 0 auto;
   color: white;
+  min-height: 100vh;
 }
 
-/* iOS-style header */
+/* Modern header */
 .header {
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
   padding-top: var(--spacing-md);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.header-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.2), rgba(0, 122, 255, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.header-icon {
+  width: 28px;
+  height: 28px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .header-title {
   margin: 0;
-  font-size: 34px; /* iOS large title size */
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  text-shadow: none; /* Remove shadow for cleaner iOS look */
+  letter-spacing: -0.8px;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.2;
 }
 
-.header-icon {
-  font-size: 34px;
+.header-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: -0.2px;
 }
 
 .list-content {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -103,44 +143,77 @@ const totalItems = computed(() => store.state.items.length);
 
 .empty-state {
   text-align: center;
-  padding: 60px var(--spacing-xl);
-  opacity: 0.6;
+  padding: 80px var(--spacing-xl);
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.empty-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-lg);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .empty-icon {
-  width: 64px;
-  height: 64px;
-  margin-bottom: var(--spacing-lg);
-  opacity: 0.5;
-  color: rgba(255, 255, 255, 0.6);
+  width: 40px;
+  height: 40px;
+  opacity: 0.4;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .empty-text {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   margin: 0 0 var(--spacing-sm) 0;
+  letter-spacing: -0.3px;
 }
 
 .empty-subtext {
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
   font-weight: 400;
+  line-height: 1.5;
 }
 
 /* Mobile adjustments */
 @media (max-width: 600px) {
   .shopping-list-container {
     padding: var(--spacing-md);
+    padding-bottom: 120px;
   }
   
   .header-title {
     font-size: 28px;
   }
   
+  .header-icon-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+  
   .header-icon {
-    font-size: 28px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .header-subtitle {
+    font-size: 14px;
   }
 }
 </style>

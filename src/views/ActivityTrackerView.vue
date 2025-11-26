@@ -1,100 +1,104 @@
 <template>
-  <div class="todo-list-container">
+  <div class="activity-tracker-container">
     <!-- Modern header -->
     <header class="header">
       <div class="header-content">
         <div class="header-icon-wrapper">
-          <Icon name="check-square" size="xl" class="header-icon" />
+          <Icon name="list" size="xl" class="header-icon" />
         </div>
         <div class="header-text">
-          <h1 class="header-title">Todo List</h1>
-          <p class="header-subtitle">{{ store.totalCount.value }} {{ store.totalCount.value === 1 ? 'task' : 'tasks' }} • {{ store.completedCount.value }} completed</p>
+          <h1 class="header-title">Practice Tracker</h1>
+          <p class="header-subtitle">{{ store.totalCount.value }} {{ store.totalCount.value === 1 ? 'practice' : 'practices' }} • {{ store.completedCount.value }} completed</p>
         </div>
       </div>
     </header>
 
-    <!-- Add Task Form -->
-    <div class="add-task-form">
+    <!-- Add Practice Form -->
+    <div class="add-activity-form">
       <div class="input-row">
         <input 
-          v-model="newTaskTitle" 
-          @keyup.enter="handleAddTask"
-          placeholder="Add new task..." 
+          v-model="newActivityName" 
+          @keyup.enter="handleAddActivity"
+          placeholder="Practice name (e.g., Football Practice)..." 
           class="input-field"
         />
-        <button @click="handleAddTask" class="add-btn">+</button>
+        <button @click="handleAddActivity" class="add-btn">+</button>
       </div>
       
-      <div class="priority-row">
-        <select v-model="selectedPriority" class="priority-select">
-          <option v-for="priority in store.state.priorities" :key="priority" :value="priority">
-            {{ priority.charAt(0).toUpperCase() + priority.slice(1) }} Priority
-          </option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Child</label>
+          <select v-model="selectedChild" class="form-select">
+            <option v-for="child in store.state.children" :key="child" :value="child">
+              {{ child }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Sport</label>
+          <select v-model="selectedSport" class="form-select">
+            <option v-for="sport in store.state.sports" :key="sport" :value="sport">
+              {{ sport }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Duration (min)</label>
+          <input
+            type="number"
+            min="1"
+            max="480"
+            v-model="selectedDuration"
+            class="form-input"
+            placeholder="60"
+          />
+        </div>
       </div>
     </div>
 
     <div class="list-content">
-      <!-- Pending Tasks -->
-      <div v-if="store.pendingTasks.value.length > 0" class="task-section">
-        <h2 class="section-title">Pending ({{ store.pendingTasks.value.length }})</h2>
-        <div class="task-list">
-          <div 
-            v-for="task in sortedPendingTasks" 
-            :key="task.id"
-            class="task-item"
-            :class="{ 'priority-high': task.priority === 'high', 'priority-medium': task.priority === 'medium', 'priority-low': task.priority === 'low' }"
-          >
-            <label class="checkbox-container">
-              <input 
-                type="checkbox" 
-                :checked="task.completed" 
-                @change="store.toggleTask(task.id)"
-              />
-              <span class="checkmark"></span>
-            </label>
-            <span class="task-title">{{ task.title }}</span>
-            <span class="priority-badge" :class="`priority-${task.priority}`">
-              {{ task.priority }}
-            </span>
-            <button @click="store.deleteTask(task.id)" class="delete-btn" title="Delete task">
-              <span class="delete-icon">×</span>
-            </button>
+      <!-- Practices by Child -->
+      <template v-for="(activities, childName) in store.activitiesByChild.value" :key="childName">
+        <div v-if="activities.length > 0" class="activity-section">
+          <h2 class="section-title">{{ childName }}'s Practices ({{ activities.length }})</h2>
+          <div class="activity-list">
+            <div 
+              v-for="activity in activities" 
+              :key="activity.id"
+              class="activity-item"
+              :class="{ 'completed': activity.completed, [`sport-${activity.sport.toLowerCase()}`]: true }"
+            >
+              <label class="checkbox-container">
+                <input 
+                  type="checkbox" 
+                  :checked="activity.completed" 
+                  @change="store.toggleActivity(activity.id)"
+                />
+                <span class="checkmark"></span>
+              </label>
+              <div class="activity-info">
+                <span class="activity-name">{{ activity.name }}</span>
+                <div class="activity-meta">
+                  <span class="activity-duration">{{ activity.duration }} min</span>
+                  <span class="activity-sport">{{ activity.sport }}</span>
+                </div>
+              </div>
+              <button @click="store.deleteActivity(activity.id)" class="delete-btn" title="Delete practice">
+                <span class="delete-icon">×</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Completed Tasks -->
-      <div v-if="store.completedTasks.value.length > 0" class="task-section">
-        <h2 class="section-title">Completed ({{ store.completedTasks.value.length }})</h2>
-        <div class="task-list">
-          <div 
-            v-for="task in store.completedTasks.value" 
-            :key="task.id"
-            class="task-item completed"
-          >
-            <label class="checkbox-container">
-              <input 
-                type="checkbox" 
-                :checked="task.completed" 
-                @change="store.toggleTask(task.id)"
-              />
-              <span class="checkmark"></span>
-            </label>
-            <span class="task-title">{{ task.title }}</span>
-            <button @click="store.deleteTask(task.id)" class="delete-btn" title="Delete task">
-              <span class="delete-icon">×</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      </template>
       
       <div v-if="store.totalCount.value === 0" class="empty-state">
         <div class="empty-icon-wrapper">
           <Icon name="file-text" size="xl" class="empty-icon" />
         </div>
-        <h3 class="empty-text">No tasks yet</h3>
-        <p class="empty-subtext">Start by adding your first task above</p>
+        <h3 class="empty-text">No practices scheduled yet</h3>
+        <p class="empty-subtext">Start by adding your first practice above</p>
       </div>
     </div>
     <Nav @navigate="$emit('navigate', $event)" />
@@ -102,33 +106,34 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import Nav from '../components/nav.vue';
 import Icon from '../components/Icon.vue';
-import { todoListStore as store } from '../stores/todoList';
+import { activityTrackerStore as store } from '../stores/activityTracker';
 
 defineEmits(['navigate']);
 
-const newTaskTitle = ref('');
-const selectedPriority = ref('medium');
+const newActivityName = ref('');
+const selectedChild = ref(store.state.children[0] || '');
+const selectedDuration = ref(60);
+const selectedSport = ref(store.state.sports[0] || 'Football');
 
-const sortedPendingTasks = computed(() => {
-  const tasks = [...store.pendingTasks.value];
-  const priorityOrder = { high: 0, medium: 1, low: 2 };
-  return tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-});
-
-const handleAddTask = () => {
-  if (newTaskTitle.value.trim()) {
-    store.addTask(newTaskTitle.value.trim(), selectedPriority.value);
-    newTaskTitle.value = '';
-    selectedPriority.value = 'medium';
+const handleAddActivity = () => {
+  if (newActivityName.value.trim() && selectedChild.value) {
+    store.addActivity(
+      newActivityName.value.trim(),
+      selectedChild.value,
+      selectedDuration.value || 60,
+      selectedSport.value || 'Football'
+    );
+    newActivityName.value = '';
+    selectedDuration.value = 60;
   }
 };
 </script>
 
 <style scoped>
-.todo-list-container {
+.activity-tracker-container {
   padding: var(--spacing-lg);
   padding-bottom: 140px;
   max-width: 640px;
@@ -153,7 +158,7 @@ const handleAddTask = () => {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255, 149, 0, 0.2), rgba(255, 59, 48, 0.2));
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(52, 199, 89, 0.2));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,7 +195,7 @@ const handleAddTask = () => {
   letter-spacing: -0.2px;
 }
 
-.add-task-form {
+.add-activity-form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -204,7 +209,7 @@ const handleAddTask = () => {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.add-task-form:hover {
+.add-activity-form:hover {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
 }
@@ -215,10 +220,24 @@ const handleAddTask = () => {
   align-items: center;
 }
 
-.priority-row {
-  display: flex;
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: var(--spacing-md);
-  align-items: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .input-field {
@@ -248,15 +267,13 @@ const handleAddTask = () => {
   font-weight: 400;
 }
 
-.priority-select {
-  flex: 1;
-  min-width: 0;
-  padding: 16px 18px;
+.form-select {
+  padding: 12px 14px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.12);
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   outline: none;
   cursor: pointer;
@@ -264,20 +281,40 @@ const handleAddTask = () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.priority-select:hover {
+.form-select:hover {
   background: rgba(255, 255, 255, 0.16);
 }
 
-.priority-select:focus {
+.form-select:focus {
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
 }
 
-.priority-select option {
+.form-select option {
   background: #1a1a1a;
   color: white;
   padding: 12px;
+}
+
+.form-input {
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.form-input:focus {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .add-btn {
@@ -325,7 +362,7 @@ const handleAddTask = () => {
   }
 }
 
-.task-section {
+.activity-section {
   margin-bottom: var(--spacing-2xl);
 }
 
@@ -336,13 +373,13 @@ const handleAddTask = () => {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.task-list {
+.activity-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
 }
 
-.task-item {
+.activity-item {
   display: flex;
   align-items: center;
   padding: var(--spacing-md) var(--spacing-lg);
@@ -355,71 +392,100 @@ const handleAddTask = () => {
   backdrop-filter: blur(10px);
 }
 
-.task-item:hover {
+.activity-item:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.12);
   transform: translateX(4px);
 }
 
-.task-item.priority-high {
-  border-left: 4px solid #FF3B30;
-  background: rgba(255, 59, 48, 0.05);
+.activity-item.sport-football {
+  border-left: 4px solid #007AFF;
+  background: rgba(0, 122, 255, 0.05);
 }
 
-.task-item.priority-medium {
-  border-left: 4px solid #FF9500;
-  background: rgba(255, 149, 0, 0.05);
-}
-
-.task-item.priority-low {
+.activity-item.sport-badminton {
   border-left: 4px solid #34C759;
   background: rgba(52, 199, 89, 0.05);
 }
 
-.task-item:active {
+.activity-item.sport-swimming {
+  border-left: 4px solid #00D4FF;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.activity-item.sport-basketball {
+  border-left: 4px solid #FF9500;
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.activity-item.sport-tennis {
+  border-left: 4px solid #FF2D55;
+  background: rgba(255, 45, 85, 0.05);
+}
+
+.activity-item.sport-soccer {
+  border-left: 4px solid #007AFF;
+  background: rgba(0, 122, 255, 0.05);
+}
+
+.activity-item.sport-volleyball {
+  border-left: 4px solid #AF52DE;
+  background: rgba(175, 82, 222, 0.05);
+}
+
+.activity-item.sport-other {
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.activity-item:active {
   background: rgba(255, 255, 255, 0.12);
   transform: translateX(2px) scale(0.99);
 }
 
-.task-item.completed {
+.activity-item.completed {
   opacity: 0.5;
 }
 
-.task-item.completed .task-title {
+.activity-item.completed .activity-name {
   text-decoration: line-through;
 }
 
-.task-title {
+.activity-info {
   flex: 1;
-  font-size: 17px;
-  line-height: 1.5;
-  font-weight: 400;
-  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
   min-width: 0;
 }
 
-.priority-badge {
+.activity-name {
+  font-size: 17px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: white;
+}
+
+.activity-meta {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  font-size: 13px;
+}
+
+.activity-duration {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.activity-sport {
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 8px;
+  padding: 2px 8px;
   border-radius: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.priority-badge.priority-high {
-  background: rgba(255, 59, 48, 0.2);
-  color: #FF3B30;
-}
-
-.priority-badge.priority-medium {
-  background: rgba(255, 149, 0, 0.2);
-  color: #FF9500;
-}
-
-.priority-badge.priority-low {
-  background: rgba(52, 199, 89, 0.2);
-  color: #34C759;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .delete-btn {
@@ -555,7 +621,7 @@ const handleAddTask = () => {
 
 /* Mobile adjustments */
 @media (max-width: 600px) {
-  .todo-list-container {
+  .activity-tracker-container {
     padding: var(--spacing-md);
     padding-bottom: 140px;
   }
@@ -576,6 +642,10 @@ const handleAddTask = () => {
   
   .header-subtitle {
     font-size: 14px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 </style>
