@@ -1,23 +1,27 @@
 <template>
   <div class="add-item-form">
-    <input 
-      v-model="newItemName" 
-      @keyup.enter="submitItem"
-      placeholder="Add new item..." 
-      class="input-field"
-    />
-    <div class="bottom-row">
-      <div class="category-section">
-        <select v-model="selectedCategory" class="category-select">
-          <option v-for="cat in categories" :key="cat" :value="cat">
-            {{ cat }}
-          </option>
-        </select>
-        <button @click="showNewCategory = !showNewCategory" class="icon-btn" title="Add category">
-          ➕
-        </button>
-      </div>
+    <!-- Row 1: Input + Add Button -->
+    <div class="input-row">
+      <input 
+        v-model="newItemName" 
+        @keyup.enter="submitItem"
+        placeholder="Add new item..." 
+        class="input-field"
+      />
       <button @click="submitItem" class="add-btn">+</button>
+    </div>
+    
+    <!-- Row 2: Category Select + Add Category -->
+    <div class="category-row">
+      <select v-model="selectedCategory" class="category-select">
+        <option v-for="cat in categories" :key="cat" :value="cat">
+          {{ cat }}
+        </option>
+      </select>
+      <button @click="showNewCategory = !showNewCategory" class="add-category-toggle" title="Add new category">
+        <span class="icon">+</span>
+        <span class="text">Category</span>
+      </button>
     </div>
   </div>
   
@@ -83,8 +87,23 @@ const submitNewCategory = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Row 1: Input + Green Button */
+.input-row {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* Row 2: Category Select + Add Category Button */
+.category-row {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
 .input-field {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 14px 16px;
   border: none;
   border-radius: var(--radius-md);
@@ -103,19 +122,6 @@ const submitNewCategory = () => {
 
 .input-field::placeholder {
   color: rgba(255, 255, 255, 0.65);
-}
-
-.bottom-row {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
-}
-
-.category-section {
-  display: flex;
-  flex: 1;
-  gap: var(--spacing-sm);
-  align-items: center;
 }
 
 .category-select {
@@ -138,27 +144,7 @@ const submitNewCategory = () => {
   padding: 12px;
 }
 
-.icon-btn {
-  min-width: 44px;
-  height: 44px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-btn:active {
-  transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.3);
-}
-
+/* Green Add Button */
 .add-btn {
   min-width: 56px;
   height: 44px;
@@ -172,11 +158,44 @@ const submitNewCategory = () => {
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+  flex-shrink: 0;
 }
 
 .add-btn:active {
   transform: scale(0.95);
   background: #30B350;
+}
+
+/* Add Category Toggle Button - Text Style */
+.add-category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.add-category-toggle:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.add-category-toggle .icon {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.add-category-toggle .text {
+  font-size: 14px;
 }
 
 .new-category-form {
@@ -240,21 +259,5 @@ const submitNewCategory = () => {
 .cancel-btn:active {
   transform: scale(0.98);
   background: rgba(255, 255, 255, 0.25);
-}
-
-/* Desktop adjustments */
-@media (min-width: 600px) {
-  .add-item-form {
-    flex-direction: row;
-    align-items: center;
-  }
-  
-  .input-field {
-    flex: 1;
-  }
-  
-  .bottom-row {
-    flex: 0 0 auto;
-  }
 }
 </style>

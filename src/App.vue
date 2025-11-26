@@ -10,6 +10,7 @@ import HomeView from './views/HomeView.vue';
 import ShoppingListView from './views/ShoppingListView.vue';
 import MealCountdownView from './views/MealCountdownView.vue';
 import ProfileView from './views/ProfileView.vue';
+import SettingsView from './views/SettingsView.vue';
 
 export default {
   name: 'App',
@@ -18,6 +19,7 @@ export default {
     ShoppingListView,
     MealCountdownView,
     ProfileView,
+    SettingsView,
   },
   setup() {
     const currentView = ref('HomeView');
