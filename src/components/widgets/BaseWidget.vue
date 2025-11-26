@@ -5,6 +5,7 @@
       'dragging': isDragging, 
       'drag-over': isDragOver, 
       'full-width': size === 'full', 
+      'half-width': size === 'half', 
       'resizing': isResizing,
       'drop-center': dropPosition === 'center',
       'drop-left': dropPosition === 'left',
@@ -20,6 +21,15 @@
     @drop="handleDrop"
     @dragend="handleDragEnd"
   >
+    <button
+      class="delete-button"
+      @click.stop="handleDelete"
+      @mousedown.stop
+      :aria-label="'Delete widget'"
+      title="Delete widget"
+    >
+      <span class="delete-icon">×</span>
+    </button>
     <div class="widget-content">
       <slot></slot>
     </div>
@@ -54,7 +64,7 @@ export default {
       validator: (value) => ['half', 'full'].includes(value)
     }
   },
-  emits: ['drag-start', 'drag-over', 'drop', 'resize'],
+  emits: ['drag-start', 'drag-over', 'drop', 'resize', 'delete'],
   data() {
     return {
       isDragging: false,
@@ -72,6 +82,11 @@ export default {
     handleDragStart(event) {
       // Don't start drag if clicking on resize handle
       if (event.target.closest('.resize-handle')) {
+        event.preventDefault();
+        return false;
+      }
+      // Don't start drag if clicking on clickable content (like links/buttons)
+      if (event.target.closest('a, button, [role="button"]')) {
         event.preventDefault();
         return false;
       }
@@ -263,6 +278,15 @@ export default {
       
       // Restore text selection
       document.body.style.userSelect = '';
+    },
+    handleDelete(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      // Confirm deletion
+      if (confirm('Are you sure you want to delete this widget?')) {
+        this.$emit('delete', { widgetId: this.widgetId });
+      }
     }
   },
   beforeUnmount() {
@@ -411,6 +435,58 @@ export default {
 
 .base-widget.resizing .resize-handle {
   background: rgba(255, 255, 255, 0.15);
+}
+
+.delete-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 59, 48, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1003;
+  opacity: 0;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.base-widget:hover .delete-button {
+  opacity: 1;
+}
+
+.delete-button:hover {
+  background: rgba(255, 59, 48, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.5);
+}
+
+.delete-button:active {
+  transform: scale(0.95);
+}
+
+.delete-icon {
+  display: block;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+.base-widget.dragging .delete-button,
+.base-widget.resizing .delete-button {
+  opacity: 0;
+  pointer-events: none;
 }
 </style>
 

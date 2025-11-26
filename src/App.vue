@@ -8,6 +8,7 @@
 import { ref } from 'vue';
 import HomeView from './views/HomeView.vue';
 import ShoppingListView from './views/ShoppingListView.vue';
+import MealCountdownView from './views/MealCountdownView.vue';
 import ProfileView from './views/ProfileView.vue';
 
 export default {
@@ -15,6 +16,7 @@ export default {
   components: {
     HomeView,
     ShoppingListView,
+    MealCountdownView,
     ProfileView,
   },
   setup() {
