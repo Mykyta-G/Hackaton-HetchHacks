@@ -9,6 +9,7 @@ import { ref } from 'vue';
 import HomeView from './views/HomeView.vue';
 import ShoppingListView from './views/ShoppingListView.vue';
 import ProfileView from './views/ProfileView.vue';
+import SettingsView from './views/SettingsView.vue';
 
 export default {
   name: 'App',
@@ -16,6 +17,7 @@ export default {
     HomeView,
     ShoppingListView,
     ProfileView,
+    SettingsView,
   },
   setup() {
     const currentView = ref('HomeView');
