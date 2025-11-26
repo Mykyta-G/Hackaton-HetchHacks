@@ -18,7 +18,7 @@
             :key="theme.id"
             class="theme-option"
             :class="{ active: selectedTheme === theme.id }"
-            @click="selectedTheme = theme.id"
+            @click="applyTheme(theme.id)"
           >
             <div class="theme-preview" :style="{ background: theme.preview }"></div>
             <span class="theme-name">{{ theme.name }}</span>
@@ -26,53 +26,53 @@
         </div>
       </div>
 
-      <!-- Family Members Management -->
+      <!-- Family Kids Management -->
       <div class="section">
         <div class="section-header">
-          <h3 class="section-title">Family Members</h3>
-          <button class="add-button" @click="showAddMember = true">
+          <h3 class="section-title">Family Kids</h3>
+          <button class="add-button" @click="showAddKid = true">
             <svg class="add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Add Member
+            Add Kid
           </button>
         </div>
-        <div class="members-list">
+        <div class="kids-list">
           <div 
-            v-for="member in familyMembers" 
-            :key="member.id" 
-            class="member-card"
+            v-for="kid in familyKids" 
+            :key="kid.id" 
+            class="kid-card"
           >
-            <div class="member-avatar">
-              <span class="member-initial">{{ getInitial(member.name) }}</span>
+            <div class="kid-avatar">
+              <span class="kid-initial">{{ getInitial(kid.name) }}</span>
             </div>
-            <div class="member-info">
-              <div class="member-name-row">
-                <span class="member-name">{{ member.name }}</span>
-                <div class="member-role-badge" :class="getMemberRoleClass(member.role)" v-if="isMemberAdmin(member.role)">
-                  <svg class="member-crown-icon" viewBox="0 0 24 24" fill="currentColor">
+            <div class="kid-info">
+              <div class="kid-name-row">
+                <span class="kid-name">{{ kid.name }}</span>
+                <div class="kid-role-badge" :class="getKidRoleClass(kid.role)" v-if="isKidGuardian(kid.role)">
+                  <svg class="kid-crown-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z"/>
                   </svg>
                 </div>
               </div>
-              <span class="member-email">{{ member.email }}</span>
+              <span class="kid-email">{{ kid.email }}</span>
             </div>
-            <div class="member-actions">
+            <div class="kid-actions">
               <label class="toggle-switch">
                 <input 
                   type="checkbox" 
-                  :checked="isMemberAdmin(member.role)"
-                  @change="toggleAdmin(member.id)"
-                  :disabled="member.id === currentUserId"
+                  :checked="isKidGuardian(kid.role)"
+                  @change="toggleGuardian(kid.id)"
+                  :disabled="kid.id === currentUserId"
                 >
                 <span class="toggle-slider"></span>
-                <span class="toggle-label">Admin</span>
+                <span class="toggle-label">Guardian</span>
               </label>
               <button 
                 class="remove-button" 
-                @click="removeMember(member.id)"
-                :disabled="member.id === currentUserId"
+                @click="removeKid(kid.id)"
+                :disabled="kid.id === currentUserId"
               >
                 <svg class="remove-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"></polyline>
@@ -156,12 +156,12 @@
       </div>
     </div>
 
-    <!-- Add Member Modal -->
-    <div v-if="showAddMember" class="modal-overlay" @click="showAddMember = false">
+    <!-- Add Kid Modal -->
+    <div v-if="showAddKid" class="modal-overlay" @click="showAddKid = false">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>Add Family Member</h3>
-          <button class="modal-close" @click="showAddMember = false">
+          <h3>Add Family Kid</h3>
+          <button class="modal-close" @click="showAddKid = false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -171,23 +171,23 @@
         <div class="modal-body">
           <div class="input-group">
             <label>Name</label>
-            <input type="text" v-model="newMember.name" placeholder="Enter name">
+            <input type="text" v-model="newKid.name" placeholder="Enter name">
           </div>
           <div class="input-group">
             <label>Email</label>
-            <input type="email" v-model="newMember.email" placeholder="Enter email">
+            <input type="email" v-model="newKid.email" placeholder="Enter email">
           </div>
           <div class="input-group">
             <label>Role</label>
-            <select v-model="newMember.role">
-              <option value="Member">Member</option>
-              <option value="Administrator">Administrator</option>
+            <select v-model="newKid.role">
+              <option value="Kid">Kid</option>
+              <option value="Guardian">Guardian</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="modal-cancel" @click="showAddMember = false">Cancel</button>
-          <button class="modal-confirm" @click="addMember">Add Member</button>
+          <button class="modal-cancel" @click="showAddKid = false">Cancel</button>
+          <button class="modal-confirm" @click="addKid">Add Kid</button>
         </div>
       </div>
     </div>
@@ -215,45 +215,85 @@ export default {
     return {
       selectedTheme: 'default',
       themes: [
-        { id: 'default', name: 'Default', preview: 'linear-gradient(135deg, #00a8e8 0%, #007ea7 100%)' },
-        { id: 'dark', name: 'Dark', preview: 'linear-gradient(135deg, #00171f 0%, #003459 100%)' },
-        { id: 'ocean', name: 'Ocean', preview: 'linear-gradient(135deg, #007ea7 0%, #003459 100%)' },
-        { id: 'sunset', name: 'Sunset', preview: 'linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)' }
+        { 
+          id: 'default', 
+          name: 'Default', 
+          preview: 'linear-gradient(135deg, #00a8e8 0%, #007ea7 100%)',
+          colors: {
+            primary: '#00a8e8',
+            secondary: '#007ea7',
+            tertiary: '#003459',
+            background: '#00171f'
+          }
+        },
+        { 
+          id: 'dark', 
+          name: 'Dark', 
+          preview: 'linear-gradient(135deg, #00171f 0%, #003459 100%)',
+          colors: {
+            primary: '#00171f',
+            secondary: '#003459',
+            tertiary: '#00171f',
+            background: '#000000'
+          }
+        },
+        { 
+          id: 'ocean', 
+          name: 'Ocean', 
+          preview: 'linear-gradient(135deg, #007ea7 0%, #003459 100%)',
+          colors: {
+            primary: '#007ea7',
+            secondary: '#003459',
+            tertiary: '#00171f',
+            background: '#000d14'
+          }
+        },
+        { 
+          id: 'sunset', 
+          name: 'Sunset', 
+          preview: 'linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)',
+          colors: {
+            primary: '#ff6b6b',
+            secondary: '#ffa500',
+            tertiary: '#cc5500',
+            background: '#2d1b0e'
+          }
+        }
       ],
-      showAddMember: false,
-      newMember: {
+      showAddKid: false,
+      newKid: {
         name: '',
         email: '',
-        role: 'Member'
+        role: 'Kid'
       },
       currentUserId: 1,
       currentUser: {
         email: 'john.doe@example.com'
       },
-      familyMembers: [
+      familyKids: [
         {
           id: 1,
           name: 'John Doe',
           email: 'john.doe@example.com',
-          role: 'Administrator'
+          role: 'Guardian'
         },
         {
           id: 2,
           name: 'Jane Doe',
           email: 'jane.doe@example.com',
-          role: 'Administrator'
+          role: 'Guardian'
         },
         {
           id: 3,
           name: 'Alice Doe',
           email: 'alice.doe@example.com',
-          role: 'Member'
+          role: 'Kid'
         },
         {
           id: 4,
           name: 'Bob Doe',
           email: 'bob.doe@example.com',
-          role: 'Member'
+          role: 'Kid'
         }
       ],
       settings: {
@@ -275,38 +315,79 @@ export default {
       }
     };
   },
+  mounted() {
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme) {
+      this.selectedTheme = savedTheme;
+      this.applyTheme(savedTheme, false); // false = don't save to localStorage again
+    }
+  },
   methods: {
+    hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    },
+    applyTheme(themeId, save = true) {
+      const theme = this.themes.find(t => t.id === themeId);
+      if (!theme) return;
+      
+      this.selectedTheme = themeId;
+      
+      // Update CSS variables
+      const root = document.documentElement;
+      root.style.setProperty('--fresh-sky', theme.colors.primary);
+      root.style.setProperty('--cerulean', theme.colors.secondary);
+      root.style.setProperty('--deep-space-blue', theme.colors.tertiary);
+      root.style.setProperty('--ink-black', theme.colors.background);
+      
+      // Update derived variables
+      root.style.setProperty('--primary-color', theme.colors.primary);
+      root.style.setProperty('--secondary-color', theme.colors.secondary);
+      root.style.setProperty('--tertiary-color', theme.colors.tertiary);
+      root.style.setProperty('--background-dark', theme.colors.background);
+      
+      // Update navbar background with 70% opacity
+      root.style.setProperty('--nav-background', this.hexToRgba(theme.colors.secondary, 0.7));
+      
+      // Save to localStorage if requested
+      if (save) {
+        localStorage.setItem('selectedTheme', themeId);
+      }
+    },
     getInitial(name) {
       return name.charAt(0).toUpperCase();
     },
-    getMemberRoleClass(role) {
+    getKidRoleClass(role) {
       const roleLower = role.toLowerCase();
-      if (roleLower.includes('admin')) return 'member-role-admin';
-      return 'member-role-member';
+      if (roleLower.includes('guardian')) return 'kid-role-guardian';
+      return 'kid-role-kid';
     },
-    isMemberAdmin(role) {
-      return role.toLowerCase().includes('admin');
+    isKidGuardian(role) {
+      return role.toLowerCase().includes('guardian');
     },
-    toggleAdmin(memberId) {
-      const member = this.familyMembers.find(m => m.id === memberId);
-      if (member) {
-        member.role = member.role === 'Administrator' ? 'Member' : 'Administrator';
+    toggleGuardian(kidId) {
+      const kid = this.familyKids.find(k => k.id === kidId);
+      if (kid) {
+        kid.role = kid.role === 'Guardian' ? 'Kid' : 'Guardian';
       }
     },
-    removeMember(memberId) {
-      this.familyMembers = this.familyMembers.filter(m => m.id !== memberId);
+    removeKid(kidId) {
+      this.familyKids = this.familyKids.filter(k => k.id !== kidId);
     },
-    addMember() {
-      if (this.newMember.name && this.newMember.email) {
-        const newId = Math.max(...this.familyMembers.map(m => m.id)) + 1;
-        this.familyMembers.push({
+    addKid() {
+      if (this.newKid.name && this.newKid.email) {
+        const newId = Math.max(...this.familyKids.map(k => k.id)) + 1;
+        this.familyKids.push({
           id: newId,
-          name: this.newMember.name,
-          email: this.newMember.email,
-          role: this.newMember.role
+          name: this.newKid.name,
+          email: this.newKid.email,
+          role: this.newKid.role
         });
-        this.newMember = { name: '', email: '', role: 'Member' };
-        this.showAddMember = false;
+        this.newKid = { name: '', email: '', role: 'Kid' };
+        this.showAddKid = false;
       }
     }
   }
@@ -435,14 +516,14 @@ export default {
   height: 16px;
 }
 
-/* Members List */
-.members-list {
+/* Kids List */
+.kids-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.member-card {
+.kid-card {
   background: var(--tertiary-color);
   border-radius: 12px;
   padding: 16px;
@@ -453,12 +534,12 @@ export default {
   overflow: hidden;
 }
 
-.member-card:hover {
+.kid-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.member-avatar {
+.kid-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -472,7 +553,7 @@ export default {
   flex-shrink: 0;
 }
 
-.member-info {
+.kid-info {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -481,14 +562,14 @@ export default {
   overflow: hidden;
 }
 
-.member-name-row {
+.kid-name-row {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
 }
 
-.member-name {
+.kid-name {
   font-size: 1rem;
   font-weight: 600;
   overflow: hidden;
@@ -496,7 +577,7 @@ export default {
   white-space: nowrap;
 }
 
-.member-email {
+.kid-email {
   font-size: 0.85rem;
   opacity: 0.8;
   overflow: hidden;
@@ -504,7 +585,7 @@ export default {
   white-space: nowrap;
 }
 
-.member-role-badge {
+.kid-role-badge {
   padding: 4px;
   border-radius: 8px;
   display: flex;
@@ -512,19 +593,19 @@ export default {
   justify-content: center;
 }
 
-.member-role-admin {
+.kid-role-guardian {
   background: rgba(255, 193, 7, 0.2);
   color: #ffc107;
   border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
-.member-crown-icon {
+.kid-crown-icon {
   width: 14px;
   height: 14px;
   color: #ffc107;
 }
 
-.member-actions {
+.kid-actions {
   display: flex;
   align-items: center;
   gap: 8px;

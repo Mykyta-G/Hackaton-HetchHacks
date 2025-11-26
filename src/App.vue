@@ -37,6 +37,60 @@ export default {
       navigateTo,
     };
   },
+  mounted() {
+    // Apply saved theme on app load
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme) {
+      const themes = {
+        default: {
+          primary: '#00a8e8',
+          secondary: '#007ea7',
+          tertiary: '#003459',
+          background: '#00171f'
+        },
+        dark: {
+          primary: '#00171f',
+          secondary: '#003459',
+          tertiary: '#00171f',
+          background: '#000000'
+        },
+        ocean: {
+          primary: '#007ea7',
+          secondary: '#003459',
+          tertiary: '#00171f',
+          background: '#000d14'
+        },
+        sunset: {
+          primary: '#ff6b6b',
+          secondary: '#ffa500',
+          tertiary: '#cc5500',
+          background: '#2d1b0e'
+        }
+      };
+      
+      const theme = themes[savedTheme];
+      if (theme) {
+        const root = document.documentElement;
+        root.style.setProperty('--fresh-sky', theme.primary);
+        root.style.setProperty('--cerulean', theme.secondary);
+        root.style.setProperty('--deep-space-blue', theme.tertiary);
+        root.style.setProperty('--ink-black', theme.background);
+        root.style.setProperty('--primary-color', theme.primary);
+        root.style.setProperty('--secondary-color', theme.secondary);
+        root.style.setProperty('--tertiary-color', theme.tertiary);
+        root.style.setProperty('--background-dark', theme.background);
+        
+        // Update navbar background with 70% opacity
+        const hexToRgba = (hex, alpha) => {
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        };
+        root.style.setProperty('--nav-background', hexToRgba(theme.secondary, 0.7));
+      }
+    }
+  },
 };
 </script>
 

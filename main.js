@@ -6,9 +6,10 @@ let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 450,
-    height: 800,
+    height: 700,
     minWidth: 450,
     minHeight: 700,
+    resizable: false,
     icon: path.join(__dirname, 'assets', 'logo.png'), // Path to your logo
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
